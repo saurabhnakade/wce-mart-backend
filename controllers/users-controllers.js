@@ -40,7 +40,7 @@ const register = async (req, res, next) => {
     try {
         token = jwt.sign(
             { id: newUser.id, username: newUser.username },
-            "my-key"
+            process.env.JWT_KEY
         );
     } catch (err) {
         return next(new Error("Not able to generate token"));
@@ -54,7 +54,7 @@ const register = async (req, res, next) => {
     });
 };
 
-const login = async (req, res,next) => {
+const login = async (req, res, next) => {
     const { username, password } = req.body;
 
     let hasUser;
@@ -81,7 +81,7 @@ const login = async (req, res,next) => {
     try {
         token = jwt.sign(
             { id: hasUser.id, username: hasUser.username },
-            "my-key"
+            process.env.JWT_KEY
         );
     } catch (err) {
         return next(new Error("Not able to generate token"));
@@ -95,7 +95,7 @@ const login = async (req, res,next) => {
     });
 };
 
-const getUser = async (req, res,next) => {
+const getUser = async (req, res, next) => {
     const id = req.params.id;
 
     let hasUser;

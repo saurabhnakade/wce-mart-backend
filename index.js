@@ -7,6 +7,7 @@ const usersRoutes = require("./routes/users-routes");
 const productsRoutes = require("./routes/products-routes");
 
 const app = express();
+require("dotenv").config();
 
 app.use(cors());
 
@@ -22,9 +23,7 @@ app.use((error, req, res, next) => {
 });
 
 mongoose
-    .connect(
-        "mongodb+srv://saurabh:saurabh23@cluster0.t6qudft.mongodb.net/test?retryWrites=true&w=majority"
-    )
+    .connect(process.env.MONGO_URL)
     .then(() => {
         app.listen(5000, () => {
             console.log("Server Running on Port 5000");
