@@ -15,6 +15,12 @@ app.use(bodyParser.json());
 app.use("/api/user", usersRoutes);
 app.use("/api/product", productsRoutes);
 
+app.use((error, req, res, next) => {
+    res.status(error.code || 500).json({
+        message: error.message || "Unknown Error Occurred",
+    });
+});
+
 mongoose
     .connect(
         "mongodb+srv://saurabh:saurabh23@cluster0.t6qudft.mongodb.net/test?retryWrites=true&w=majority"

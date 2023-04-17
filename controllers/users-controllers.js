@@ -12,14 +12,14 @@ const register = async (req, res, next) => {
         return next(err);
     }
     if (hasUser) {
-        next(new Error("User Already Present"));
+        return next(new Error("User Already Exists"));
     }
 
     let hashedPass;
     try {
         hashedPass = await bcrypt.hash(password, 12);
     } catch (err) {
-        console.log("not able to hash password");
+        return next(new Error("Not able to hash password"));
     }
 
     const newUser = new User({
@@ -33,7 +33,7 @@ const register = async (req, res, next) => {
     try {
         await newUser.save();
     } catch (err) {
-        console.log(err.message + " Hello");
+        return next(new Error("Not able to save user"));
     }
 
     let token;
@@ -43,7 +43,7 @@ const register = async (req, res, next) => {
             "my-key"
         );
     } catch (err) {
-        console.log(err.message);
+        return next(new Error("Not able to generate token"));
     }
 
     res.status(201).json({
@@ -54,27 +54,28 @@ const register = async (req, res, next) => {
     });
 };
 
-const login = async (req, res) => {
+const login = async (req, res,next) => {
     const { username, password } = req.body;
 
     let hasUser;
     try {
         hasUser = await User.findOne({ username: username });
     } catch (err) {
-        console.log("mongoose error in findOne");
+        return next(new Error("Not able to search database"));
     }
     if (!hasUser) {
-        console.log("User doesnot exist");
-        return;
+        return next(new Error("User Doesnot exist"));
     }
 
     let isValidPass = false;
     try {
         isValidPass = await bcrypt.compare(password, hasUser.password);
     } catch (err) {
-        console.log("bcrypt error");
+        return next(new Error("Not able to comapre with hash"));
     }
-    if (!isValidPass) console.log("not a valid password");
+    if (!isValidPass) {
+        return next(new Error("Invalid Password"));
+    }
 
     let token;
     try {
@@ -83,7 +84,7 @@ const login = async (req, res) => {
             "my-key"
         );
     } catch (err) {
-        console.log(err.message);
+        return next(new Error("Not able to generate token"));
     }
 
     res.status(202).json({
@@ -94,19 +95,18 @@ const login = async (req, res) => {
     });
 };
 
-const getUser = async (req, res) => {
+const getUser = async (req, res,next) => {
     const id = req.params.id;
 
     let hasUser;
     try {
         hasUser = await User.findById(id);
     } catch (err) {
-        console.log("mongoose error in findOne");
+        return next(new Error("Not able to find user"));
     }
 
     if (!hasUser) {
-        console.log("User Not Present");
-        return;
+        return next(new Error("User doesnot exist"));
     }
 
     res.status(200).json({

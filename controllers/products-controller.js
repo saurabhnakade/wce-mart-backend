@@ -103,7 +103,7 @@ const deleteProduct = async (req, res, next) => {
         return next(new Error("Not able to find product with given id"));
     }
 
-    if (product.sellersId != req.user.id) {
+    if (product.sellersId.id != req.user.id) {
         return next(new Error("You are not allowed to delete this product"));
     }
 
