@@ -13,6 +13,10 @@ app.use(cors());
 
 app.use(bodyParser.json());
 
+app.get("/", (req, res) => {
+    res.status(200).send("Start Up");
+});
+
 app.use("/api/user", usersRoutes);
 app.use("/api/product", productsRoutes);
 
