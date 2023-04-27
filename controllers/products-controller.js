@@ -51,7 +51,7 @@ const getMyProducts = async (req, res, next) => {
 };
 
 const createProduct = async (req, res, next) => {
-    const { name, description, image, price, status, sellersId } = req.body;
+    const { name, description, image, price, status, sellersId ,yearPurchased,intermediateUsers,negotiable} = req.body;
 
     if (sellersId != req.user.id) {
         return next(new Error("You are not allowed to create a place"));
@@ -64,6 +64,10 @@ const createProduct = async (req, res, next) => {
         price,
         status,
         sellersId,
+        yearPurchased,
+        intermediateUsers,
+        negotiable,
+        bids:[]
     });
 
     let user;
