@@ -72,5 +72,28 @@ const deleteBid = async (req, res, next) => {
     res.status(200).json({ message: `Bid Deleted with id ${id}` });
 };
 
+const getMyBids = async (req, res, next) => {
+    const id = req.params.id;
+
+    let product;
+    try {
+        product = await Product.findById(id).populate("bids");
+    } catch (err) {
+        return next(new Error("Not able to find user mongoose error"));
+    }
+    if (!product) {
+        return next(new Error("Not able to find product of that id"));
+    }
+
+    if (product.sellersId != req.user.id) {
+        return next(new Error("You are not allowed to view bids"));
+    }
+
+    res.json({
+        bids: product.bids.map((p) => p.toObject({ getters: true })),
+    });
+};
+
 exports.addBid = addBid;
 exports.deleteBid = deleteBid;
+exports.getMyBids=getMyBids
