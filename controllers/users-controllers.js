@@ -28,6 +28,7 @@ const register = async (req, res, next) => {
         password: hashedPass,
         mobile,
         products: [],
+        notifications:[]
     });
 
     try {
