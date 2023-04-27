@@ -8,6 +8,11 @@ const bidSchema=new Schema({
         required:true,
         ref:'User'
     },
+    productsId:{
+        type: mongoose.Types.ObjectId,
+        required:true,
+        ref:'Product'
+    },
     amount:{
         type:Number,
         required:true,
