@@ -28,6 +28,12 @@ const userSchema=new Schema({
             ref: "Product",
         },
     ],
+    notifications:[
+        {
+            type:String,
+            required:true,
+        }
+    ]
 })
 
 module.exports=mongoose.model('User',userSchema)
