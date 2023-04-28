@@ -27,13 +27,21 @@ const addBid = async (req, res, next) => {
         return next(new Error("Not able to find Product"));
     }
 
+    const date = new Date();
+    let day = date.getDate();
+    let month = date.getMonth() + 1;
+    let year = date.getFullYear();
+    let currentDate = `${day}-${month}-${year}`;
+
     try {
         const sess = await mongoose.startSession();
         sess.startTransaction();
         await newBid.save({ session: sess });
         product.bids.push(newBid);
-        product.sellersId.notifications.unshift(`You have received new bid for ${product.name}`);
-        await product.sellersId.save({session:sess})
+        product.sellersId.notifications.unshift(
+            `You have received new bid for ${product.name} on ${currentDate} `
+        );
+        await product.sellersId.save({ session: sess });
         await product.save({ session: sess });
         await sess.commitTransaction();
     } catch (err) {
@@ -65,17 +73,23 @@ const deleteBid = async (req, res, next) => {
         return next(new Error("You are not allowed to delete this product"));
     }
 
+    const date = new Date();
+    let day = date.getDate();
+    let month = date.getMonth() + 1;
+    let year = date.getFullYear();
+    let currentDate = `${day}-${month}-${year}`;
+
     try {
         const sess = await mongoose.startSession();
         sess.startTransaction();
         await bid.deleteOne({ session: sess });
         if (accept === "true") {
             bidOwner.notifications.unshift(
-                `Your Bid of ₹${bid.amount} for product ${bid.productsId.name} is accepted by ${productOwner.name} -> ${productOwner.mobile}`
+                `Your Bid of ₹${bid.amount} for product ${bid.productsId.name} is accepted by ${productOwner.name} -> ${productOwner.mobile}  on ${currentDate}`
             );
-        }else{
+        } else {
             bidOwner.notifications.unshift(
-                `Your Bid of ₹${bid.amount} for product ${bid.productsId.name} is rejected`
+                `Your Bid of ₹${bid.amount} for product ${bid.productsId.name} is rejected  on ${currentDate}`
             );
         }
         bid.productsId.bids.pull(bid);
