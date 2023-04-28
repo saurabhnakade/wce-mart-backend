@@ -19,7 +19,7 @@ const addBid = async (req, res, next) => {
 
     let product;
     try {
-        product = await Product.findById(productsId);
+        product = await Product.findById(productsId).populate("sellersId");
     } catch (err) {
         return next(new Error("Not able to find user mongoose error"));
     }
@@ -32,6 +32,8 @@ const addBid = async (req, res, next) => {
         sess.startTransaction();
         await newBid.save({ session: sess });
         product.bids.push(newBid);
+        product.sellersId.notifications.push(`You have received new bid for ${product.name}`);
+        await product.sellersId.save({session:sess})
         await product.save({ session: sess });
         await sess.commitTransaction();
     } catch (err) {
@@ -69,11 +71,11 @@ const deleteBid = async (req, res, next) => {
         await bid.deleteOne({ session: sess });
         if (accept === "true") {
             bidOwner.notifications.push(
-                `Your Bid of ${bid.amount} for product ${bid.productsId.name} is accepted by ${productOwner.name} -> ${productOwner.mobile}`
+                `Your Bid of ₹${bid.amount} for product ${bid.productsId.name} is accepted by ${productOwner.name} -> ${productOwner.mobile}`
             );
         }else{
             bidOwner.notifications.push(
-                `Your Bid of ${bid.amount} for product ${bid.productsId.name} is rejected`
+                `Your Bid of ₹${bid.amount} for product ${bid.productsId.name} is rejected`
             );
         }
         bid.productsId.bids.pull(bid);
