@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
 app.use("/api/user", usersRoutes);
 app.use("/api/product", productsRoutes);
 app.use("/api/bid", bidsRoutes);
-app.use("/api/notifications/",notificationsRoutes)
+app.use("/api/notifications",notificationsRoutes)
 
 app.use((error, req, res, next) => {
     res.status(error.code || 500).json({
