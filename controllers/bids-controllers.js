@@ -32,7 +32,7 @@ const addBid = async (req, res, next) => {
         sess.startTransaction();
         await newBid.save({ session: sess });
         product.bids.push(newBid);
-        product.sellersId.notifications.push(`You have received new bid for ${product.name}`);
+        product.sellersId.notifications.unshift(`You have received new bid for ${product.name}`);
         await product.sellersId.save({session:sess})
         await product.save({ session: sess });
         await sess.commitTransaction();
@@ -70,11 +70,11 @@ const deleteBid = async (req, res, next) => {
         sess.startTransaction();
         await bid.deleteOne({ session: sess });
         if (accept === "true") {
-            bidOwner.notifications.push(
+            bidOwner.notifications.unshift(
                 `Your Bid of ₹${bid.amount} for product ${bid.productsId.name} is accepted by ${productOwner.name} -> ${productOwner.mobile}`
             );
         }else{
-            bidOwner.notifications.push(
+            bidOwner.notifications.unshift(
                 `Your Bid of ₹${bid.amount} for product ${bid.productsId.name} is rejected`
             );
         }
