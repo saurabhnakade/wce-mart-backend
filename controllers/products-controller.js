@@ -99,7 +99,7 @@ const deleteProduct = async (req, res, next) => {
 
     let product;
     try {
-        product = await Product.findById(id).populate("sellersId");
+        product = await Product.findById(id).populate("sellersId").populate("bids");
     } catch (err) {
         return next(new Error("Mongoose error not able to find product"));
     }
@@ -115,6 +115,7 @@ const deleteProduct = async (req, res, next) => {
         const sess = await mongoose.startSession();
         sess.startTransaction();
         await product.deleteOne({ session: sess });
+        product.bids.map(async(b)=>await b.deleteOne({session:sess}));
         product.sellersId.products.pull(product);
         await product.sellersId.save({ session: sess });
         await sess.commitTransaction();

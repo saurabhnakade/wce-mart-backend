@@ -4,7 +4,7 @@ const Product = require("../models/Product");
 const User = require("../models/User");
 
 const addBid = async (req, res, next) => {
-    const { productsId, biddersId, amount } = req.body;
+    const { productsId, biddersId, amount,name } = req.body;
 
     if (biddersId != req.user.id) {
         return next(new Error("You are not allowed to bid"));
@@ -14,6 +14,7 @@ const addBid = async (req, res, next) => {
         biddersId,
         productsId,
         amount,
+        name
     });
 
     let product;
