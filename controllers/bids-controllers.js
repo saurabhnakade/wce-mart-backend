@@ -32,6 +32,7 @@ const addBid = async (req, res, next) => {
     let month = date.getMonth() + 1;
     let year = date.getFullYear();
     let currentDate = `${day}-${month}-${year}`;
+    let time = date.getHours() + ":" + date.getMinutes();
 
     try {
         const sess = await mongoose.startSession();
@@ -39,7 +40,7 @@ const addBid = async (req, res, next) => {
         await newBid.save({ session: sess });
         product.bids.push(newBid);
         product.sellersId.notifications.unshift(
-            `You have received new bid for ${product.name} on ${currentDate} `
+            `You have received new bid for ${product.name} on ${currentDate} at ${time}`
         );
         await product.sellersId.save({ session: sess });
         await product.save({ session: sess });
@@ -78,6 +79,7 @@ const deleteBid = async (req, res, next) => {
     let month = date.getMonth() + 1;
     let year = date.getFullYear();
     let currentDate = `${day}-${month}-${year}`;
+    let time = date.getHours() + ":" + date.getMinutes();
 
     try {
         const sess = await mongoose.startSession();
@@ -85,7 +87,7 @@ const deleteBid = async (req, res, next) => {
         await bid.deleteOne({ session: sess });
         if (accept === "true") {
             bidOwner.notifications.unshift(
-                `Your Bid of ₹${bid.amount} for product ${bid.productsId.name} is accepted by ${productOwner.name} -> ${productOwner.mobile}  on ${currentDate}`
+                `Your Bid of ₹${bid.amount} for product ${bid.productsId.name} is accepted by ${productOwner.name} → ${productOwner.mobile}  on ${currentDate} at ${time}`
             );
         } else {
             bidOwner.notifications.unshift(
