@@ -42,7 +42,14 @@ const addNotification = async (req, res, next) => {
         return next(new Error("Not able to find user with that id"));
     }
 
-    const not = `Contacts for product ${title} of price ${price} : ${user.name} → ${user.mobile}`;
+    const date = new Date();
+    let day = date.getDate();
+    let month = date.getMonth() + 1;
+    let year = date.getFullYear();
+    let currentDate = `${day}-${month}-${year}`;
+    let time = date.getHours() + ":" + date.getMinutes();
+
+    const not = `Contacts for product ${title} of price ${price} : ${user.name} → ${user.mobile} on ${currentDate} at ${time}`;
     user.notifications.unshift(not);
     await user.save();
     
