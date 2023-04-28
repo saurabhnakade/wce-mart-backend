@@ -40,7 +40,7 @@ const addBid = async (req, res, next) => {
         await newBid.save({ session: sess });
         product.bids.push(newBid);
         product.sellersId.notifications.unshift(
-            `You have received new bid for ${product.name} on ${currentDate} at ${time}`
+            `You have received a new bid for ${product.name} on ${currentDate} at ${time}`
         );
         await product.sellersId.save({ session: sess });
         await product.save({ session: sess });
@@ -87,11 +87,11 @@ const deleteBid = async (req, res, next) => {
         await bid.deleteOne({ session: sess });
         if (accept === "true") {
             bidOwner.notifications.unshift(
-                `Your Bid of ₹${bid.amount} for product ${bid.productsId.name} is accepted by ${productOwner.name} → ${productOwner.mobile}  on ${currentDate} at ${time}`
+                `Your Bid of ₹${bid.amount} for product ${bid.productsId.name} is accepted by ${productOwner.name} → ${productOwner.mobile} on ${currentDate} at ${time}`
             );
         } else {
             bidOwner.notifications.unshift(
-                `Your Bid of ₹${bid.amount} for product ${bid.productsId.name} is rejected  on ${currentDate}`
+                `Your Bid of ₹${bid.amount} for product ${bid.productsId.name} is rejected on ${currentDate} at ${time}`
             );
         }
         bid.productsId.bids.pull(bid);
