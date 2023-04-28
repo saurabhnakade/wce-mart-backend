@@ -4,7 +4,7 @@ const Product = require("../models/Product");
 const User = require("../models/User");
 
 const addBid = async (req, res, next) => {
-    const { productsId, biddersId, amount,name } = req.body;
+    const { productsId, biddersId, amount, name } = req.body;
 
     if (biddersId != req.user.id) {
         return next(new Error("You are not allowed to bid"));
@@ -14,7 +14,7 @@ const addBid = async (req, res, next) => {
         biddersId,
         productsId,
         amount,
-        name
+        name,
     });
 
     let product;
@@ -43,10 +43,14 @@ const addBid = async (req, res, next) => {
 
 const deleteBid = async (req, res, next) => {
     const id = req.params.id;
+    const accept = req.query.accept;
 
     let bid;
+    let productOwner;
     try {
         bid = await Bid.findById(id).populate("productsId");
+        bidOwner = await User.findById(bid.biddersId);
+        productOwner = await User.findById(bid.productsId.sellersId);
     } catch (err) {
         return next(new Error("Mongoose error in deleting bid"));
     }
@@ -63,11 +67,21 @@ const deleteBid = async (req, res, next) => {
         const sess = await mongoose.startSession();
         sess.startTransaction();
         await bid.deleteOne({ session: sess });
+        if (accept === "true") {
+            bidOwner.notifications.push(
+                `Your Bid of ${bid.amount} for product ${bid.productsId.name} is accepted by ${productOwner.name} -> ${productOwner.mobile}`
+            );
+        }else{
+            bidOwner.notifications.push(
+                `Your Bid of ${bid.amount} for product ${bid.productsId.name} is rejected`
+            );
+        }
         bid.productsId.bids.pull(bid);
+        await bidOwner.save({ session: sess });
         await bid.productsId.save({ session: sess });
         await sess.commitTransaction();
     } catch (err) {
-        return next(new Error("Not able to delete product"));
+        return next(new Error("Not able to delete bid"));
     }
 
     res.status(200).json({ message: `Bid Deleted with id ${id}` });
@@ -97,4 +111,4 @@ const getMyBids = async (req, res, next) => {
 
 exports.addBid = addBid;
 exports.deleteBid = deleteBid;
-exports.getMyBids=getMyBids
+exports.getMyBids = getMyBids;

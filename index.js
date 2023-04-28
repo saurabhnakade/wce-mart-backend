@@ -23,6 +23,7 @@ app.use("/api/product", productsRoutes);
 app.use("/api/bid", bidsRoutes);
 
 app.use((error, req, res, next) => {
+    console.log(error.message)
     res.status(error.code || 500).json({
         message: error.message || "Unknown Error Occurred",
     });
