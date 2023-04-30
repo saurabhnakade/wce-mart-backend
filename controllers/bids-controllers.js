@@ -28,11 +28,14 @@ const addBid = async (req, res, next) => {
     }
 
     const date = new Date();
+    let dateIST = new Date(date);
+    dateIST.setHours(dateIST.getHours() + 5);
+    dateIST.setMinutes(dateIST.getMinutes() + 30);
     let day = date.getDate();
     let month = date.getMonth() + 1;
     let year = date.getFullYear();
     let currentDate = `${day}-${month}-${year}`;
-    let time = date.getHours() + ":" + date.getMinutes();
+    let time = dateIST.getHours() + ":" + dateIST.getMinutes();
 
     try {
         const sess = await mongoose.startSession();
@@ -75,11 +78,14 @@ const deleteBid = async (req, res, next) => {
     }
 
     const date = new Date();
+    let dateIST = new Date(date);
+    dateIST.setHours(dateIST.getHours() + 5);
+    dateIST.setMinutes(dateIST.getMinutes() + 30);
     let day = date.getDate();
     let month = date.getMonth() + 1;
     let year = date.getFullYear();
     let currentDate = `${day}-${month}-${year}`;
-    let time = date.getHours() + ":" + date.getMinutes();
+    let time = dateIST.getHours() + ":" + dateIST.getMinutes();
 
     try {
         const sess = await mongoose.startSession();
