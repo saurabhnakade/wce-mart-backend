@@ -22,15 +22,15 @@ const getNotificationsById = async (req, res, next) => {
     res.json({ notifications: user.notifications });
 };
 
-const deleteNotification=async(req,res,next)=>{
-    const index=req.params.index;
-    const {id}=req.body;
+const deleteNotification = async (req, res, next) => {
+    const index = req.params.index;
+    const { id } = req.body;
 
     if (id != req.user.id) {
         return next(new Error("You are not allowed to view notifications"));
     }
 
-    console.log(index)
+    console.log(index);
 
     let user;
     try {
@@ -43,11 +43,11 @@ const deleteNotification=async(req,res,next)=>{
         return next(new Error("Not able to find user with that id"));
     }
 
-    user.notifications.splice(index,1);
+    user.notifications.splice(index, 1);
     await user.save();
 
-    res.send({msg:"Deleted"});
-}
+    res.send({ msg: "Deleted" });
+};
 
 const addNotification = async (req, res, next) => {
     const { id, title, price } = req.body;
@@ -68,19 +68,22 @@ const addNotification = async (req, res, next) => {
     }
 
     const date = new Date();
+    let dateIST = new Date(date);
+    dateIST.setHours(dateIST.getHours() + 5);
+    dateIST.setMinutes(dateIST.getMinutes() + 30);
     let day = date.getDate();
     let month = date.getMonth() + 1;
     let year = date.getFullYear();
     let currentDate = `${day}-${month}-${year}`;
-    let time = date.getHours() + ":" + date.getMinutes();
+    let time = dateIST.getHours() + ":" + dateIST.getMinutes();
 
     const not = `Contacts for product ${title} of price ${price} : ${user.name} → ${user.mobile} on ${currentDate} at ${time}`;
     user.notifications.unshift(not);
     await user.save();
-    
+
     res.status(201).json({ notification: not });
 };
 
 exports.addNotification = addNotification;
 exports.getNotificationsById = getNotificationsById;
-exports.deleteNotification=deleteNotification;
+exports.deleteNotification = deleteNotification;
