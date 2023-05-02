@@ -50,7 +50,7 @@ const deleteNotification = async (req, res, next) => {
 };
 
 const addNotification = async (req, res, next) => {
-    const { id, title, price } = req.body;
+    const { id, title, price,sellersId } = req.body;
 
     if (id != req.user.id) {
         return next(new Error("You are not allowed to view notifications"));
@@ -67,6 +67,17 @@ const addNotification = async (req, res, next) => {
         return next(new Error("Not able to find user with that id"));
     }
 
+    let seller;
+    try {
+        seller = await User.findById(sellersId);
+    } catch (err) {
+        return next(new Error("Mongoose error not able to find user"));
+    }
+
+    if (!seller) {
+        return next(new Error("Not able to find user with that id"));
+    }
+
     const date = new Date();
     let dateIST = new Date(date);
     dateIST.setHours(dateIST.getHours() + 5);
@@ -77,7 +88,7 @@ const addNotification = async (req, res, next) => {
     let currentDate = `${day}-${month}-${year}`;
     let time = dateIST.getHours() + ":" + dateIST.getMinutes();
 
-    const not = `Contacts for product ${title} of price ${price} : ${user.name} → ${user.mobile} on ${currentDate} at ${time}`;
+    const not = `Contacts for product ${title} of price ${price} : ${seller.name} → ${seller.mobile} on ${currentDate} at ${time}`;
     user.notifications.unshift(not);
     await user.save();
 
