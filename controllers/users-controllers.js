@@ -1,6 +1,9 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const crypto = require("crypto");
+const Token = require("../models/Token");
+const sendEmail = require("../middleware/send-email");
 
 const register = async (req, res, next) => {
     const { username, name, mobile, password } = req.body;
@@ -28,7 +31,7 @@ const register = async (req, res, next) => {
         password: hashedPass,
         mobile,
         products: [],
-        notifications:[]
+        notifications: [],
     });
 
     try {
@@ -46,6 +49,15 @@ const register = async (req, res, next) => {
     } catch (err) {
         return next(new Error("Not able to generate token"));
     }
+
+    const newToken = new Token({
+        userId: newUser._id,
+        token: token,
+    });
+    await newToken.save();
+
+    const url = `${process.env.BASE_URL}/api/user/verify/${newUser._id}/${token}`;
+    await sendEmail(newUser.username, "Verify Email", url);
 
     res.status(201).json({
         id: newUser.id,
@@ -76,6 +88,13 @@ const login = async (req, res, next) => {
     }
     if (!isValidPass) {
         return next(new Error("Invalid Password"));
+    }
+    if(hasUser.verified===false){
+        const emailToken=await Token.findOne({userId:hasUser._id})
+        const url = `${process.env.BASE_URL}/api/user/verify/${hasUser._id}/${emailToken.token}`;
+        await sendEmail(hasUser.username, "Verify Email", url);
+
+        return next(new Error("Not Verified Email"));
     }
 
     let token;
@@ -117,6 +136,32 @@ const getUser = async (req, res, next) => {
     });
 };
 
+const verifyEmail = async (req, res, next) => {
+    const { id, token } = req.params;
+
+    try {
+        const user = await User.findById(id);
+        if (!user) return res.status(400).send({ message: "Invalid link" });
+
+        const foundToken = await Token.findOne({
+            userId: user._id,
+            token: token,
+        });
+        if (!foundToken)
+            return res.status(400).send({ message: "Invalid link" });
+
+        user.verified = true;
+        await user.save();
+
+        await foundToken.deleteOne();
+
+        res.status(200).send({ message: "Email verified successfully" });
+    } catch (error) {
+        res.status(500).send({ message: "Internal Server Error" });
+    }
+};
+
+exports.verifyEmail = verifyEmail;
 exports.register = register;
 exports.login = login;
 exports.getUser = getUser;
